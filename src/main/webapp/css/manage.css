@@ -1,0 +1,28 @@
+@charset "UTF-8";
+#gbox_jqGrid{
+	height: 642px;
+	margin: 0px 60px 30px 60px;
+}
+
+#selectId{
+	width: 70px;
+	height: 30px;
+	margin: 20px 10px 20px 0px;
+}
+
+#input{
+	width: 150px;
+	height: 30px;
+	margin: 20px 10px 20px 10px;
+}
+
+#inputBtn{
+	width: 60px;
+	height: 30px;
+	margin: 20px 10px 20px 10px;
+}
+
+#memBtn, #sketBtn{
+	background-color: #079df8;
+	color: white;
+}

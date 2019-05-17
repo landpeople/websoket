@@ -1,0 +1,152 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+}
+
+/*가로 가운데 정렬 및 전체 레이아웃을 잡기 위한 div*/
+.main-wrapper {
+	width: 1276px;
+	height: 930px;
+	margin: auto;
+}
+
+.sidebar-menu { /*사이드바 레이아웃 div*/
+	position: absolute;
+	background-color: #5f6d7e;
+	color: white;
+	width: 276px;
+	height: 930px;
+	padding: 20px;
+	box-sizing: border-box;
+}
+/* 사이드바 이미지 영역 div 스타일 */
+.top-section {
+	margin-top: 100px;
+	height: 236px;
+	width: 236px;
+	padding: 28px;
+	box-sizing: border-box;
+}
+/* 사이드바 이미지 스타일 */
+.profile-image {
+	height: 180px;
+	width: 180px;
+	background: url("../img/제주배경임.png");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	-webkit-border-radius: 125px;
+	border-radius: 125px;
+	background-position: center;
+	background-size: cover;
+}
+
+.menu-navigation {
+	padding-top: 20px;
+	padding-left: 28px;
+	padding-right: 28px;
+}
+
+.navigation>li {
+	margin-bottom: 20px;
+	list-style: none;
+}
+
+.main-navigation li a {
+	color: white;
+	text-decoration: none;
+}
+
+.chatting {
+	margin-top: 70px;
+	background-color: white;
+	width: 236px;
+	height: 131px;
+}
+
+/*header*/
+.content-wrapper {
+	position: relative;
+	left: 276px;
+	width: 1000px;
+}
+/*헤더 그림 스타일  */
+.banner-bg {
+	background: url("../img/제주도.png");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	width: 1000px;
+	height: 230px;
+}
+
+.main-lpcontents {
+	background-color: white;
+	box-sizing: border-box;
+	padding: 20px;
+	width: 1000px;
+	height: 650px;
+}
+
+.lpcontents {
+	background-color: white;
+	box-sizing: border-box;
+	padding: 20px;
+	width: 1000px;
+	height: 880px;
+}
+/* 콘텐츠 영역 스타일 */
+.content {
+	background-color: pink;
+	height: 100%;
+}
+/* iframe 스타일 */
+iframe {
+	frameborder: 0;
+	width: 100%;
+	height: 100%;
+	marginwidth: 0px;
+	marginheight: 0px;
+	scrolling: yes;
+}
+/* 모달 스타일 */
+.modal-input{
+	/* float: right; */
+}
+
+/* 라디오버튼 숨기기 */
+.themeradio input[type=radio] { 
+	display:none;  
+	margin:10px; 
+
+} 
+/* 라디오버튼 직사각형 버튼 모양 만들기 */
+.themeradio input[type=radio] + label { 
+	display:inline-block; 
+	margin:-2px;
+	padding: 8px 19px;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	font-size: 13px !important;
+	width: 80px;
+	text-align: center; 
+}
+/* 선택한 라디오버튼 배경색 변경 */
+.themeradio input[type=radio]:checked + label {  
+	background-image: none;
+	background-color:#3598dc;
+	color:#fff; 
+}
+
+
+/*푸터 스타일  */
+.footer {
+	box-sizing: border-box;
+	background-color: black;
+	width: 1000px;
+	height: 50px;
+	padding: 10px 20px;
+	text-align: center;
+	color:white;
+}

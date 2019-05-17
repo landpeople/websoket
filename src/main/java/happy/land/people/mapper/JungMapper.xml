@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="jung_test">
+
+	<!-- 스케치북 작성권한 확인  -->
+	<select id="sketch_WriteChk" resultType="java.lang.String" parameterType="happy.land.people.dto.LPUserDto">
+		SELECT USER_ISWRITE FROM LPUSER WHERE USER_EMAIL = #{user_email}
+	</select>
+	
+
+	<!-- 스케치북 생성 -->
+	<insert id="sketch_Insert" parameterType="happy.land.people.dto.LPSketchbookDto">
+		INSERT INTO LPSKETCHBOOK(SKETCH_ID, USER_EMAIL, SKETCH_TITLE, SKETCH_THEME, SKETCH_SHARE, SKETCH_DELFLAG, SKETCH_SPATH, SKETCH_BLOCK)
+		VALUES('0013', #{user_email}, #{sketch_title}, #{sketch_theme}, 'F', 'F', 'c:\abc\defg', 'F')	
+	
+	</insert>
+	
+	
+	<!-- 스크랩 최초 등록 -->
+	<insert id="collect_Insert" parameterType="happy.land.people.dto.LPCollectDto">
+		 INSERT INTO LPCOLLECT(COL_ID, USER_EMAIL, SKETCH_ID, COL_SCRAPE, COL_LIKE)
+                SELECT '004',#{user_email}, #{sketch_id}, 'F', 'F' 
+                	FROM DUAL WHERE NOT EXISTS(SELECT * FROM LPCOLLECT WHERE USER_EMAIL=#{user_email} AND SKETCH_ID =#{sketch_id})
+	</insert>
+	
+	<!-- 스크랩 상태 가져오기 -->
+	<select id="scrape_Select" resultType="java.lang.String" parameterType="happy.land.people.dto.LPCollectDto">
+		SELECT COL_SCRAPE FROM LPCOLLECT WHERE USER_EMAIL=#{user_email} AND SKETCH_ID=#{sketch_id}
+	</select>
+
+	<!-- 스케치북 스크랩 수정(등록, 취소) -->
+	<update id="scrape_Update" parameterType="java.util.Map">
+	UPDATE LPCOLLECT SET COL_SCRAPE=#{scrape} WHERE USER_EMAIL=#{user_email} AND SKETCH_ID=#{sketch_id}
+	</update>
+
+	<!-- 좋아요 상태 가져오기 -->
+	<select id="like_Select" resultType="java.lang.String" parameterType="java.util.Map">
+	SELECT COL_LIKE FROM LPCOLLECT WHERE USER_EMAIL=#{user_email} AND SKETCH_ID=#{sketch_id}
+	</select>
+		
+	<!-- 스케치북 '좋아요' (등록, 취소) -->   
+	<update id="like_Update" parameterType="java.util.Map">	
+	UPDATE LPCOLLECT SET COL_LIKE=#{like} WHERE USER_EMAIL=#{user_email} AND SKETCH_ID=#{sketch_id}
+	</update>    
+
+
+
+
+</mapper>

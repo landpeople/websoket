@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<!-- Model Layer의 설정 -->
+
+
+	<!-- 하나 만들 때마다, restart해서 잘 잡혔는지 확인해가면서 해 -->
+	<!-- properties 회사에서 자주 사용하는데, 안할 때도 인 -->
+	<!-- jndi 방식 context param에 때려 넣음, 요즘에 잘 안하는데 properties가 여러개일 수 있기 때문에 -->
+	<!-- 뭐 하나만 있을 때는 상관 없음 -->
+	<!-- 회사에서는 강제적으로 이름을 변경해놓는 경우가 있는데 assambley를 봐야함 -->
+	<!-- ** 인식하셈) 폴더와 패키지의 가장 큰 차이점은? 패키지는 컴파일 되는애 모든것들(클래스 패스를 갖는거) 폴더(인터프리터 
+		: 화면)는 그냥 저장되는 애 -->
+	<!-- properties만들때 untitle text file 하면 안됨!!! file임! 이거 쓰면 reader로 읽어내야함.. -->
+	<!-- bean 생성시 땡겨올 때 ref -->
+	<!-- Database의 접속정보를 가지고 있는 **.properties 파일을 bean으로 생성하여 등록 -->
+
+	<!-- 10*번 -->
+	<!-- 환경설정의 값 파일인 properties 파일을 읽어 spring bean으로 만들어 줌 -->
+   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="locations">
+         <list>
+            <value>classpath:properties/db.properties</value>
+         </list>
+      </property>
+   </bean>
+
+	<!-- 11*번 -->
+	<!-- dataSource로 bean을 생성 // commons dbcp가 필요함 지금만드는 빈은 dbcp가 만드는 빈 -->
+	<!-- datasource persistant layer transaction 중요해! db 접속도 안되고 트랜젝션도 안되고 -->
+	<!-- 위에 애는 등록을 하면 바로 사용가능한데 이친구는 다른애들이 사용함 -->
+	<!-- 접속 정보를 가지고 DataSource(접속 , 트랜젝션 등)을 위한 객체를 Bean으로 생성 -->
+   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+      <property name="driverClassName" value="${driver}"/>
+      <property name="url" value="${url}"/>
+      <property name="username" value="${user}"/>
+      <property name="password" value="${pw}"/>
+      <property name="defaultAutoCommit" value="true"/>
+      <property name="maxWait" value="20000"/>
+      <property name="maxIdle" value="10"/>
+   </bean>
+
+	<!-- 1단계 : MyBatis 세팅 파일, 2단계 : spring bean으로 생성, 3단계 : Transaction -->
+	<!-- 1단계 : SqlSessionFactoryBean을 사용하여 Spring에서 사용할 수 있는 Bean을 생성 -->
+
+	<!-- 12*번 -->
+	<!-- MyBatis 객체 연결 정보를 Spring에 등록 -->
+   <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+      <property name="dataSource" ref="dataSource"/>
+      <property name="configLocation" value="/WEB-INF/spring/sqls/mybatis-configuration.xml"/>
+   </bean>
+
+	<!-- 14*번 -->
+	<!-- myBatis-spring을 사용해서 DI로 사용함(autowired)를 사용하면 interface에서도 자동으로 자식 
+		찾아주고 그래서 이걸 ocp라고 함 -->
+	<!-- 생성된 myBatis 객체를 Spring이 사용할 수 있는 Bean(Template)으로 등록 -->
+	<!-- Mybatis 객체가 생성된 bean을 spring이 생성할 수 있도록 Bean에 다시 넣어줌 -->
+   <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<!-- 우리가 이거 객체 만들 때 싱글콘으로 만든적도 있고, new 한적도 있는데, 뭐... 아직 이해 못함.. -->
+      <constructor-arg index="0" ref="sqlSession"/>
+   </bean>
+
+	<!-- 15*번 -->
+	<!-- 트랜젝션 처리 Spring에 등록 -->
+	<!-- @Service에 설정, 메소드 @Transactional 선언해주면 자동으로 예외 발생시 Rollback -->
+	<!-- 회사에가면 트렌잭션을 dao에 거는 경우도 있음 rollback으로 -->
+   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource"/>
+   </bean>
+  
+</beans>

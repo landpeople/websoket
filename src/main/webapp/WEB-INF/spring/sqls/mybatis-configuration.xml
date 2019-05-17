@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+   <!-- 있어도 되고 없어도 되는 DTO를 선언하여 Alias를 통해 쉽게 사용! -->
+   <typeAliases>
+      <typeAlias type="happy.land.people.dto.TestDto" alias="testDto"/>
+      <typeAlias type="happy.land.people.dto.cho.ChoDto" alias="ChoDto"/>
+   </typeAliases>
+   
+   
+   <!-- 데이터 베이스 커넥션 환경 : SpringFramework이 Bean으로 제공 -->
+
+   <!-- Statement(쿼리 문장) 있는 XML을 연결 -->
+   <mappers>
+      <mapper resource="happy/land/people/mapper/TestMapper.xml"/><!-- 리소스는 슬러시로 작성, 컴파일이 된 것들은 .으로 작성 -->
+      <mapper resource="happy/land/people/mapper/KimMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/NaMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/LeeMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/JangMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/JungMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/ChoMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/ChoMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/UserMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/BoardMapper.xml"/>
+      <mapper resource="happy/land/people/mapper/ChatMapper.xml"/>
+   </mappers>
+</configuration>

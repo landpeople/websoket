@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kim_test">
+
+	 <insert id="map_Insert" parameterType="happy.land.people.dto.kim.LPMapdataDto">
+	 	INSERT INTO LPMAPDATA VALUES(LPMAPDATA_SEQ.NEXTVAL,#{map_x},#{map_y},#{map_type},#{map_title},#{map_content})
+	 </insert>
+
+	<select id="map_SelectType" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPMapdataDto">
+		SELECT MAP_ID,MAP_X,MAP_Y,MAP_TITLE,MAP_CONTENT FROM LPMAPDATA WHERE MAP_TYPE=#{type}
+	</select>
+
+	<insert id="days_Insert" parameterType="happy.land.people.dto.kim.LPDaysDto">
+		INSERT INTO LPDAYS VALUES(LPDAYS_SEQ.NEXTVAL,#{can_id},
+		#{days_title}, #{days_content} ,#{days_sdate}, #{days_edate}, #{days_x}, #{days_y}, #{days_address})
+	</insert>
+	
+	<select id="days_SelectAll" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPDaysDto">
+		SELECT  DAYS_TITLE,DAYS_CONTENT,DAYS_SDATE,DAYS_EDATE,DAYS_X,DAYS_Y,DAYS_ADDRESS  
+					FROM LPDAYS 
+						WHERE CAN_ID =#{id} 
+							ORDER BY DAYS_SDATE
+	</select>
+	
+	<!-- 해당 스케치북의 캔버스 수량 가져오기 -->
+	<select id="canvas_Cnt" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM LPCANVAS WHERE SKETCH_ID=#{id}
+	</select>
+	
+	<!-- 해당 스케치북의 id와 type 가져오기 -->
+	<select id="canvas_SelectType" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPCanvasDto">
+		SELECT CAN_ID,CAN_TYPE FROM LPCANVAS WHERE SKETCH_ID=#{id} ORDER BY CAN_PAGENO
+	</select>
+	
+	<!-- 캔버스 페이지 번호 증가 -->
+	<update id="canvas_IncreasePage" parameterType="java.util.Map">
+		UPDATE LPCANVAS SET CAN_PAGENO=CAN_PAGENO+1 WHERE CAN_ID IN (SELECT CAN_ID FROM LPCANVAS WHERE <![CDATA[ CAN_PAGENO >= #{pageNo} ]]> AND SKETCH_ID=#{id} )
+	</update>
+	
+	<!-- 캔버스 생성 -->
+	<insert id="canvas_Insert" parameterType="happy.land.people.dto.kim.LPCanvasDto">
+		INSERT INTO LPCANVAS VALUES(LPCANVAS_SEQ.NEXTVAL,#{sketch_id},#{can_title}, #{can_content} , #{can_type} ,#{can_pageno})
+	</insert>
+	
+	<!-- 생성된 캔버스의 id값 찾기 -->
+	<select id="canvas_SelectID" parameterType="happy.land.people.dto.kim.LPCanvasDto" resultType="java.lang.String">
+		SELECT CAN_ID FROM LPCANVAS WHERE CAN_PAGENO=#{can_pageno} AND SKETCH_ID=#{sketch_id}
+	</select>
+	
+	<!-- 엑셀로 다운로드 할 일정캔버스 정보 가져오기 -->
+	<select id="canvas_DownloadExcel" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPDaysDto">
+		SELECT LPDAYS1.CAN_ID, LPDAYS1.DAYS_TITLE, LPDAYS1.DAYS_SDATE, LPDAYS1.DAYS_EDATE, LPDAYS1.DAYS_ADDRESS
+			FROM (SELECT CAN_ID,DAYS_TITLE,DAYS_SDATE,DAYS_EDATE,DAYS_ADDRESS 
+				FROM LPDAYS WHERE CAN_ID
+					IN (SELECT CAN_ID FROM (SELECT * FROM LPCANVAS) WHERE SKETCH_ID=#{id} AND CAN_TYPE=1)) 
+						LPDAYS1,LPCANVAS LPCANVAS1
+			WHERE LPDAYS1.CAN_ID = LPCANVAS1.CAN_ID ORDER BY LPCANVAS1.CAN_PAGENO , LPDAYS1.DAYS_SDATE
+	</select>
+	<!-- 캔버스 한개 선택 -->
+	<select id="canvas_SelectOne" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPCanvasDto">
+		SELECT * FROM LPCANVAS WHERE CAN_ID=#{id}
+	</select>	
+	<!-- 일정 캔버스 삭제 -->
+	<delete id="days_Delete" parameterType="java.lang.String">
+		DELETE FROM LPDAYS WHERE CAN_ID=#{id} 
+	</delete>
+	<!-- 캔버스 삭제 -->
+	<delete id="canvas_Delete" parameterType="java.lang.String">
+		DELETE FROM LPCANVAS WHERE CAN_ID=#{id}
+	</delete>
+	<!-- 캔버스 페이지 번호 감소 -->
+	<update id="canvas_DecreasePage" parameterType="java.util.Map">
+		UPDATE LPCANVAS SET CAN_PAGENO=CAN_PAGENO-1 WHERE CAN_ID IN (SELECT CAN_ID FROM LPCANVAS WHERE <![CDATA[ CAN_PAGENO > #{pageNo}]]> AND SKETCH_ID=#{sketch_id})
+	</update>	
+	<!-- 일정 캔버스 한개 조회 -->
+	<select id="days_SelectOne" parameterType="java.lang.String" resultType="happy.land.people.dto.kim.LPDaysDto">
+		SELECT * FROM LPDAYS WHERE CAN_ID=#{id}
+	</select>
+</mapper>

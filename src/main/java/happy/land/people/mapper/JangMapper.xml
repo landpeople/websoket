@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="jang_test">
+
+<select id="selectMemberList" parameterType="happy.land.people.dto.LPUserDto" resultType="java.util.Map">
+        SELECT  a.*
+          FROM  (
+	            SELECT  a.*,
+	                    ROWNUM rnum,
+	                    FLOOR((ROWNUM - 1) /#{rows} + 1) pageNumber
+	              FROM  (
+		                    SELECT  USER_EMAIL
+		                         , USER_PASSWORD
+		                         , USER_NICKNAME
+		                         , USER_AUTH
+		                         , USER_DELFLAG
+		                         , USER_EMAILCHK
+		                         , USER_ISWRITE
+		                      FROM LPUSER
+		                     WHERE 1=1
+		                      <if test='serviceImplYn != ""'>
+		                         <choose>
+		                             <when test='serviceImplYn == "user_email"'>
+		                                 AND USER_EMAIL LIKE '%'||#{input}||'%'
+		                             </when>
+		                               <when test='serviceImplYn == "user_nickname"'>
+		                                 AND USER_NICKNAME LIKE '%'||#{input}||'%'
+		                             </when>
+		                             <otherwise>
+		                             </otherwise>
+		                         </choose>
+		                    </if>
+		                 ORDER BY USER_NICKNAME
+	                    ) a
+                ) a
+           WHERE  a.pageNumber = #{page}
+        order by a.rnum
+    </select>
+    
+    <select id="selectMemberListCnt" parameterType="happy.land.people.dto.LPUserDto" resultType="java.util.Map">
+        SELECT count(*) totalTotCnt 
+        	,CEIL(count(*) / #{rows}) totalPage
+          FROM LPUSER
+          <if test='serviceImplYn != ""'>
+        	 WHERE USER_EMAIL LIKE '%'||#{input}||'%' OR USER_NICKNAME LIKE '%'||#{input}||'%'
+        	 </if>
+     		 ORDER BY USER_NICKNAME
+    </select>
+    
+    <select id="selectSketchList" parameterType="happy.land.people.dto.LPSketchbookDto" resultType="java.util.Map">
+        SELECT  a.*
+          FROM  (
+	            SELECT  a.*,
+	                    ROWNUM rnum,
+	                    FLOOR((ROWNUM - 1) /#{rows} + 1) pageNumber
+	              FROM  (
+		                    SELECT  SKETCH_ID
+		                         , USER_EMAIL
+		                         , SKETCH_TITLE
+		                         , SKETCH_THEME
+		                         , SKETCH_SHARE
+		                         , SKETCH_DELFLAG
+		                         , SKETCH_BLOCK
+		                      FROM LPSKETCHBOOK
+		                     WHERE 1=1
+		                      <if test='serviceImplYn != ""'>
+		                         <choose>
+		                             <when test='serviceImplYn == "user_email"'>
+		                                 AND USER_EMAIL LIKE '%'||#{input}||'%'
+		                             </when>
+		                               <when test='serviceImplYn == "sketch_title"'>
+		                                 AND SKETCH_TITLE LIKE '%'||#{input}||'%'
+		                             </when>
+		                             <otherwise>
+		                             </otherwise>
+		                         </choose>
+		                    </if>
+		                 ORDER BY SKETCH_ID
+	                    ) a
+                ) a
+           WHERE  a.pageNumber = #{page}
+        order by a.rnum
+    </select>
+    
+    <select id="selectSketchListCnt" parameterType="happy.land.people.dto.LPSketchbookDto" resultType="java.util.Map">
+        SELECT count(*) totalTotCnt 
+        	,CEIL(count(*) / #{rows}) totalPage
+          FROM LPSKETCHBOOK
+             <if test='serviceImplYn != ""'>
+        	 WHERE USER_EMAIL LIKE '%'||#{input}||'%' OR SKETCH_TITLE LIKE '%'||#{input}||'%'
+        	 </if>
+     		 ORDER BY SKETCH_TITLE
+    </select>
+    
+    <select id="selectIswrite" parameterType="java.lang.String" resultType="java.lang.String">
+    	SELECT USER_ISWRITE FROM LPUSER
+    		WHERE USER_EMAIL=#{email}
+    </select>
+    
+    <update id="modifyIswrite" parameterType="java.util.Map">
+	    UPDATE LPUSER SET 
+	    <if test='Iswrite != null'>
+	    	<choose>
+	    		<when test='Iswrite == "T"'>
+	    			USER_ISWRITE='F'
+	    		</when>
+	    		<when test='Iswrite == "F"'>
+	    			USER_ISWRITE='T'
+	    		</when>
+	    	</choose>
+	    </if>
+		WHERE USER_EMAIL=#{email}
+    </update>
+    
+    
+    <select id="selectBlock" parameterType="java.lang.String" resultType="java.lang.String">
+    	SELECT SKETCH_BLOCK FROM LPSKETCHBOOK
+    		WHERE SKETCH_ID=#{id}
+    </select>
+    
+    <update id="modifyBlock" parameterType="java.util.Map">
+	    UPDATE LPSKETCHBOOK SET 
+	    <if test='block != null'>
+	    	<choose>
+	    		<when test='block == "T"'>
+	    			SKETCH_BLOCK='F'
+	    		</when>
+	    		<when test='block == "F"'>
+	    			SKETCH_BLOCK='T'
+	    		</when>
+	    	</choose>
+	    </if>
+		WHERE SKETCH_ID=#{id}
+    </update>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lee_test">
+
+	<!-- 로그인 시 세션에 접속한 사용자의 닉네임을 채팅 가능한 사용자 테이블에 입력-->
+	<insert id="chatList_Insert" parameterType="java.lang.String">
+		INSERT INTO LPCHATLIST VALUES(#{user_nickname})
+	</insert>
+
+   <!-- 세션의 사용자 목록 조회 -->
+   <select id="chatList_SelectAll" resultType="java.lang.String">
+      SELECT USER_NICKNAME FROM LPCHATLIST
+   </select>
+   
+   <!-- 채팅방 생성 -->
+   <!-- 1. 기존에 상대방과 채팅방이 있는지 확인 -->
+   <select id="chatRoom_Select" parameterType="java.util.Map" resultType="java.lang.String">
+      SELECT CHR_ID FROM LPCHATROOM WHERE (CHR_SENDER, CHR_RECEIVER) IN ((#{sender}, #{receiver}),(#{receiver},#{sender}))
+   </select>
+
+   <!--  2.1 만약에 기존에 만들었던 채팅방이 있다면 나의 채팅 목록에서 보이게 만들어줌 -->
+   <update id="chatRoom_UpdateOut" parameterType="java.lang.String">
+      UPDATE LPCHATROOM SET CHR_SOUT='F', CHR_ROUT = 'F' WHERE CHR_ID = #{chr_id}
+   </update>
+   
+   <!--  2.2 기존에 채팅방이 없다면 -> 채팅 리스트에 추가 -->
+   <insert id="chatRoom_Insert" parameterType="java.util.Map">
+      INSERT INTO LPCHATROOM VALUES(LPCHATROOM_SEQ.NEXTVAL, #{sender}, #{receiver}, 'F', 'F', '', SYSDATE)
+   </insert>
+  
+   <select id="chkChatMember" parameterType="java.lang.String" resultType="java.util.Map">
+		SELECT CHR_SENDER, CHR_RECEIVER FROM LPCHATROOM
+			WHERE CHR_ID = #{chr_id}
+    </select>
+    
+    <select id="chkDelflag" parameterType="java.lang.String" resultType="java.lang.String">
+    	SELECT USER_DELFLAG FROM LPUSER
+    		WHERE USER_EMAIL = #{user_email}
+    </select>
+</mapper>

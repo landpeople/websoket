@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="statement_test">
+   <select id="jobsAll" resultType="testDto">
+      SELECT JOB_ID, JOB_TITLE, MIN_SALARY, MAX_SALARY FROM JOBS
+   </select>
+   
+   <update id="update01">
+      UPDATE JOBS SET MIN_SALARY = 1
+   </update>
+   
+   <update id="update02"><!-- 트랜젝션이 잘 걸리는지 확인하려고 일부러 쿼리를 이상하게 씀-->
+      UPDATE JOBS ET MAX_SALARY = 1
+   </update>
+   
+   <insert id="cryptographic" parameterType="testDto">
+      INSERT INTO JOBS VALUES(#{job_id}, #{job_title}, #{min_salary}, #{max_salary})
+   </insert>
+   
+   <select id="crytographicCompare" resultType="testDto">
+      SELECT JOB_ID, JOB_TITLE, MIN_SALARY, MAX_SALARY FROM JOBS WHERE JOB_ID = #{job_id}
+   </select>
+</mapper>

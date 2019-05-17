@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:websocket="http://www.springframework.org/schema/websocket"
+   xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+   <!-- 3*번 -->
+   <!-- 회사에가면, xml이 통째로 하나에 때려넣어진 경우도 있음 -->
+   <!-- Controller와 View처리를 하기 위한 xml bean의 집합 -->
+
+   <!-- 빈을 생성하기 위한 클래스를 연동하는 context -->
+   <!-- 설정된 Top-package에 있는 모든 @(annoation)을 Bean으로 등록 -->
+   <context:component-scan base-package="happy.land.people"/><!-- 요아래서 부터 스캔 -->
+
+   <!-- Annotation을 사용하여 탐색을 진행가능 하도록 함 -->
+   <mvc:annotation-driven/>
+
+   <!-- 6*번 -->
+   <!-- 추가 Resolver 설정 -->
+   <!-- DispatcherServlet에 의해 반환된 값을 이용해 화면을 이동처리 -->
+   <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"><!-- 제일 많이 사용하는 resolver 친구 -->
+      <!-- 반환된 문자열 앞에 위치하는 주소 -->
+      <property name="prefix" value="/WEB-INF/views/"/>
+      <!-- 반환된 문자열의 뒤에 위치하는 주소 -->
+      <property name="suffix" value=".jsp"/>
+   </bean>
+
+   <!-- 파일업로드는 여기다가 걸어둠 / 멀티파트 리졸브 -->
+
+   <!-- 추가 기능으로 interceptor -->
+   <!-- 가로채가지고, 필터의 기능인데 필터를 사용하지 않고 인터셉트를 사용하는 이유는, filter는 url 화면과 화면을 이동할 
+      때 잡아주는거고 -->
+   <!-- 얘는 제어의 역전 ioc 알아서 작동해야하므로 여기다가 interceptor을 걸어줌 -->
+   <!-- 특정한 상황일 때 페이지의 흐름을 변경 혹은 제어하기 위해서 사용 -->
+   <!-- ex) 글쓰기 화면의 경우 주소에 지겁(url/~~do)입력해도 접근이 가능 따라서 HttpSession을 확인하여 흐름을 
+      제어하는 클래스를 생성 -->
+   <mvc:interceptors>
+      <mvc:interceptor><!-- 인터셉트를 처리할 클래스가 있어야함 -->
+         <mvc:mapping path="/interceptor.do"/>
+         <!-- 읽히게 하려면 bean이 필요 -->
+         <bean class="happy.land.people.interceptor.Interceptor"/>
+      </mvc:interceptor>
+      <!-- 브라우저의 back 이동 페이지의 작동을 하지 못하도록 브라우저의 캐시를 삭제해줌 -->
+      <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+         <!-- 이동화면 요청 후 몇 초 동안 개쉬를 유지한수 삭제기간 -->
+         <property name="cacheSeconds" value="0"/>
+         <property name="useExpiresHeader" value="true"/>
+         <property name="useCacheControlHeader" value="true"/>
+         <property name="useCacheControlNoStore" value="true"/>
+         <!-- 캐시 삭제와 별개로 캐시를 삭제하지 않고 유지함 ex) 이미지, 동영상 -->
+         <property name="cacheMappings">
+            <props>
+               <!-- 캐시를 제어할 webapp 위치, 시간60초 60 -->
+               <prop key="/image/**">86400</prop>
+            </props>
+         </property>
+      </bean>
+   </mvc:interceptors>
+
+   <!-- 이메일 전송을 위한 Mail 서버 설정 ex) google -->
+   <!-- 선택됨 메일 서버에서 외부 접근이 가능하도록 설정 -->
+   <!-- 선택된 메일 의 서버 정보를 사용해야함 transport protocol SMTP -->
+   <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+      <property name="host" value="smtp.gmail.com"/>
+      <property name="port" value="587"/>
+      <property name="username" value="happylandpeople@gmail.com"/>
+      <property name="password" value="happy@0612"/>
+
+      <property name="javaMailProperties">
+         <props>
+            <prop key="mail.transport.protocol">smtp</prop>
+            <prop key="mail.smtp.auth">true</prop>
+            <prop key="mail.smtp.starttls.enable">true</prop>
+            <prop key="mail.debug">true</prop>
+         </props>
+      </property>
+   </bean>
+
+   <!-- 트랜젝션 처리 -->
+   <!-- 나중에 aop로 옮겨주면 되겠죠 -->
+    
+   <!-- 16*번 -->
+   <!-- Transaction처리 method별로 @annotation으로 해주는 것이 아니라 aop에 의해 pointcut으로 작성된 위치에 특정 행위(Exception)가 발생 했을 때 작동 -->
+   <!-- 아이디를 잡아주는 이유는 작동되는 위치, 트렌젝션이 발생했을 때해주겠다. 상세내용은 aop_configure에 할거라서 -->
+   <tx:advice id="txAdvice" transaction-manager="transactionManager">
+      <tx:attributes>
+         <!-- Exception 을 걸어두면 예외가 발생하면 롤백을 하고 propagation은 다음거가 실행되지 않는다. -->
+         <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
+      </tx:attributes>
+   </tx:advice>
+   
+   <!-- 17*번 -->
+   <aop:config><!-- 접근제어자 * com에서 별 -->
+      <aop:advisor advice-ref="txAdvice" pointcut="execution(* happy.land.people.model.*Service*.*(..))"/>
+   </aop:config>
+
+   <tx:annotation-driven transaction-manager="transactionManager"/>
+   
+   <!-- webSocket handeler -->
+   <websocket:handlers>
+      <websocket:mapping handler="wsChat.do" path="/wsChat.do"/>
+      <websocket:handshake-interceptors>
+         <bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"></bean>
+      </websocket:handshake-interceptors>
+   </websocket:handlers>
+   
+   
+   
+   
+   
+   
+   <bean id="googleConnectionFactory" class="org.springframework.social.google.connect.GoogleConnectionFactory">
+   	<constructor-arg value="302749873898-fq7tebgkhe04612h4fm02n6c4hlonrno.apps.googleusercontent.com"/>
+   	<constructor-arg value="S9hUasoYIzVHxozaEYokHHVd"/>
+   </bean>
+   
+   <bean id="googleOAuth2Parameters" class="org.springframework.social.oauth2.OAuth2Parameters">
+   	<property name="scope" value="https://www.googleapis.com/auth/plus.login"/>
+   	<property name="redirectUri" value="http://localhost:8091/LandPeople/callbackgoogle.do"/>
+   
+   </bean>
+
+   
+   
+   
+   
+</beans>
+
+
+
+   

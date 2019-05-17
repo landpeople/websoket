@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+<!-- AOP : ccc(cross cutting concern) 관점 외 관심사 -->
+<!-- 개발을 하기 위해서 중요하게 작성하지 않는 부분에 대해서 자동으로 처리하자 -->
+<!-- 로그, 예외, 트랜젝션 -->
+<!-- pointcut 어따가 찍을 건데, aspect 위치 지정 -->
+<!-- 위밍이라는 기술을 이용해 pointcut을 찍어줌 -->
+
+<!-- 실질적으로 실행되는 메소드 -->
+   <bean id="logAop" class="happy.land.people.aop.AopDaoLogger"/>
+   
+   <!-- aspect, pointCut -->
+   <aop:config>
+      <aop:pointcut expression="execution(* happy.land.people.model.*Dao*.*(..))" id="daoLogPoint"/>
+   <!-- 실행되는 Class의 Bean을 등록 -->
+      <aop:aspect id="logAop" ref="logAop">
+      <!-- DAO 실행 전에 -->
+      <!-- 메소드가 실행되어야 하는데 어느 상황일때 필요한지를 ref로 명시 -->
+         <aop:before method="before" pointcut-ref="daoLogPoint"/>
+      <!-- DAO 성공적으로 실행하고 반환이 이뤄졌을 때 -->
+         <aop:after-returning method="afterReturning" pointcut-ref="daoLogPoint"/>
+      <!-- DAO 실행하고 에러 발생했을 때 -->
+         <aop:after method="afterThrowing" pointcut-ref="daoLogPoint"/>
+      </aop:aspect>
+   </aop:config>
+
+</beans>
